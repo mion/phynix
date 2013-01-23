@@ -1,7 +1,9 @@
 <html>
 	<head>
 		<title>Phynix</title>
-		<link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+		<link href="css/phynix.css" rel="stylesheet">
+		<!-- <link href="css/bootstrap.min.css" rel="stylesheet"> -->
 		<script type="text/javascript" src="js/Box2dWeb-2.1.a.3.min.js"></script>
 		<script type="text/javascript" src="js/phynix.js"></script>
 	</head>
@@ -12,7 +14,7 @@
 			<br>
 			<canvas id="canvas" width="600" height="400" style="background-color:#333;" ></canvas>
 			<br>
-			<input class="span8" id="commandInput" type="text" onkeypress="return runCommand(event)">
+			<input class="span8" id="commandInput" type="text" onkeydown="inputKeyPressed(event)">
 		</div>
 	</body>
 </html>
