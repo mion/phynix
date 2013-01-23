@@ -1,0 +1,18 @@
+<html>
+	<head>
+		<title>Phynix</title>
+		<link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+		<script type="text/javascript" src="js/Box2dWeb-2.1.a.3.min.js"></script>
+		<script type="text/javascript" src="js/phynix.js"></script>
+	</head>
+	<body onload="init();">
+		<div class="container">
+			<h1>Phynix</h1>
+			<p>Create physical simulations with Unix-like commands!</p>
+			<br>
+			<canvas id="canvas" width="600" height="400" style="background-color:#333;" ></canvas>
+			<br>
+			<input class="span8" id="commandInput" type="text" onkeypress="return runCommand(event)">
+		</div>
+	</body>
+</html>
