@@ -1,20 +1,78 @@
+html {
+  background-color: #145d85;
+  background-color: #114e6f;
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#176d9b), to(#114e6f));
+  background-image: -webkit-linear-gradient(top, #176d9b, #114e6f);
+  background-image: -moz-linear-gradient(top, #176d9b, #114e6f);
+  background-image: -ms-linear-gradient(top, #176d9b, #114e6f);
+  background-image: -o-linear-gradient(top, #176d9b, #114e6f); }
+
 body {
-	font-family: "Open Sans";
-}
+  font-family: "Open Sans"; }
+
+#pattern-overlay {
+  background: transparent url("../img/ptrn1.png");
+  background-size: 35px 34px;
+  opacity: 0.6; }
+
+.navigation {
+  padding: 5px;
+  border: 1px solid #0d3e59;
+  background-color: #114e6f;
+  border-radius: 3px;
+  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.25);
+  color: #f0f0f0; }
+
+h1 {
+  position: relative;
+  font-size: 120px;
+  margin-top: 0;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  font-family: "Armata", helvetica, arial, sans-serif;
+  font-weight: 700;
+  text-shadow: 2px 3px 3px #292929;
+  letter-spacing: -1px;
+  -webkit-text-stroke: 1px white; }
+
+h1 a {
+  text-decoration: none;
+  color: #ffffff;
+  position: absolute;
+  -webkit-mask-image: -webkit-gradient(linear, left top, left bottom, from(black), color-stop(50%, rgba(0, 0, 0, 0)), to(black));
+  text-shadow: 0 2px 0 #e9e9e9;
+  -webkit-transition: all .3s;
+  -moz-transition: all .3s;
+  transition: all .3s; }
+
+h1:after {
+  color: #dbdbdb;
+  content: attr(data-title); }
+
+.info {
+  color: #f6f6f6;
+  font-weight: bold;
+  text-shadow: 0 2px 0 rgba(35, 35, 35, 0.6); }
+
+canvas {
+  border: 1px solid black;
+  background-color: #232;
+  margin: 25px;
+  border-radius: 3px; }
 
 input[type="text"] {
-	height: 40px;
-	width: 600px;
-	padding: 10px ;
-	font-family: "Lucida Console";
-	font-size: 16px;
-	background-color: #F5F7F7;
-	color: #303525;
-	border: 1px solid #999;
-	vertical-align: middle;
-}
+  height: 40px;
+  width: 600px;
+  padding: 10px;
+  font-family: "Ubuntu Mono";
+  font-size: 16px;
+  color: #222;
+  background-color: #f6f6f6;
+  border: 1px solid #227;
+  border-radius: 3px;
+  vertical-align: middle;
+  box-shadow: inset 0px 0 3px rgba(0, 0, 0, 0.8); }
 
 input[type="text"]:focus {
-	border-color: #999;
-	outline: 0;
-}
+  border-color: #22B;
+  outline: 0; }
