@@ -65,42 +65,42 @@ var block = function (spec, my) {
    that.DYNAMIC = b2Body.b2_dynamicBody;
    that.STATIC = b2Body.b2_staticBody;
 
-   that.get_id = function ( ) {
+   that.getID = function ( ) {
       return spec.id;
    }
 
-   that.get_body_def = function ( ) {
+   that.getBodyDef = function ( ) {
       return my.bodyDef;
    }
 
-   that.get_fixture_def = function ( ) {
+   that.getFixtureDef = function ( ) {
       return my.fixtureDef;
    }
 
-   that.get_body = function ( ) {
+   that.getBody = function ( ) {
       return my.body;
    }
 
-   that.set_body = function (b) {
+   that.setBody = function (b) {
       my.body = b;
    }
 
-   that.get_type = function ( ) {
+   that.getType = function ( ) {
       return my.bodyDef.type;
    }
 
-   that.get_density = function ( ) {
+   that.getDensity = function ( ) {
       return my.bodyDef.density;
    }
 
-   that.get_friction = function ( ) {
+   that.getFriction = function ( ) {
       return my.bodyDef.friction;
    }
 
    return that;
-}
+};
 
-var box = function (spec, my) {
+var box = function(spec, my) {
    var that;
    my = my || {};
 
@@ -110,16 +110,16 @@ var box = function (spec, my) {
    my.polygonShape.SetAsBox(spec.width / 2 / 30.0, spec.height / 2 / 30.0);
    my.fixtureDef.shape = my.polygonShape;
 
-   that.get_width = function ( ) {
+   that.getWidth = function ( ) {
       return spec.width;
    }
 
-   that.get_height = function ( ) {
+   that.getHeight = function ( ) {
       return spec.height;
    }
 
    return that;
-}
+};
 
 var circle = function (spec, my) {
    var that;
@@ -130,38 +130,38 @@ var circle = function (spec, my) {
    my.circleShape = new b2CircleShape(spec.radius / 30.0);
    my.fixtureDef.shape = my.circleShape;
 
-   that.get_radius = function ( ) {
+   that.getRadius = function ( ) {
       return spec.radius;
    }
 
    return that;
-}
+};
 
-function create_block(b, x, y, rotation) {
-   b.get_body_def().position.Set(x / 30.0, y / 30.0);
+function createBlock(b, x, y, rotation) {
+   b.getBodyDef().position.Set(x / 30.0, y / 30.0);
 
-   b.set_body(world.CreateBody(b.get_body_def()));
-   b.get_body().CreateFixture(b.get_fixture_def());
+   b.setBody(world.CreateBody(b.getBodyDef()));
+   b.getBody().CreateFixture(b.getFixtureDef());
 
    if (rotation)
    {
-      var t = new b2Transform(b.get_body().GetPosition(), b2Mat22.FromAngle(rotation * (Math.PI / 180)));
-      b.get_body().SetTransform(t);
+      var t = new b2Transform(b.getBody().GetPosition(), b2Mat22.FromAngle(rotation * (Math.PI / 180)));
+      b.getBody().SetTransform(t);
    }
 
-   blocks[b.get_id()] = b;
-}
+   blocks[b.getID()] = b;
+};
 
 function mkbox(x, y, w, h, rotation, identifier) {
    var b = box({id: identifier, width: w, height: h});
 
-   create_block(b, x, y, rotation);
+   createBlock(b, x, y, rotation);
 }
 
 function mkcir(x, y, r, identifier) {
    var c = circle({id: identifier, radius: r});
 
-   create_block(c, x, y);
+   createBlock(c, x, y);
 }
 
 function mkjnt(id1, id2) {
@@ -169,7 +169,7 @@ function mkjnt(id1, id2) {
        block2 = blocks[id2];
 
    var distanceJointDef = new b2DistanceJointDef;
-   distanceJointDef.Initialize(block1.get_body(), block2.get_body(), block1.get_body().GetWorldCenter(), block2.get_body().GetWorldCenter());
+   distanceJointDef.Initialize(block1.getBody(), block2.getBody(), block1.getBody().GetWorldCenter(), block2.getBody().GetWorldCenter());
 
    world.CreateJoint(distanceJointDef);
 }
