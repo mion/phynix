@@ -8,7 +8,8 @@ html {
   background-image: -o-linear-gradient(top, #176d9b, #114e6f); }
 
 body {
-  font-family: "Open Sans"; }
+  font-family: "Open Sans", Arial;
+}
 
 #pattern-overlay {
   background: transparent url("../img/ptrn1.png");
