@@ -2,7 +2,7 @@
 
 Create physics simulations using Unix-like commands.
 
-Read the instructions and then [click here](http://www.github.com) to play it in your browser.
+Read the instructions and then [click here](http://mion.github.io/phynix/) to play it in your browser.
 
 Phynix is built on [box2dweb](http://code.google.com/p/box2dweb/) (a port of Box2DFlash to JavaScript). The original [Box2D](http://box2d.org/) physics engine was developed by Erin Catto.
 
