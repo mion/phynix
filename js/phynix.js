@@ -97,6 +97,14 @@ var block = function (spec, my) {
       my.body = b;
    }
 
+   that.setUserData = function (d) {
+      my.body.userData = d;
+   }
+
+   that.getUserData = function (d) { 
+      return my.body.userData;
+   }
+
    that.getType = function ( ) {
       return my.bodyDef.type;
    }
@@ -119,7 +127,7 @@ var box = function(spec, my) {
    that = block(spec, my);
 
    my.polygonShape = new b2PolygonShape;
-   my.polygonShape.SetAsBox(spec.width / 2 / 30.0, spec.height / 2 / 30.0);
+   my.polygonShape.SetAsBox(spec.width / 2 / ppm, spec.height / 2 / ppm);
    my.fixtureDef.shape = my.polygonShape;
 
    that.getWidth = function ( ) {
@@ -139,7 +147,7 @@ var circle = function (spec, my) {
 
    that = block(spec, my);
 
-   my.circleShape = new b2CircleShape(spec.radius / 30.0);
+   my.circleShape = new b2CircleShape(spec.radius / ppm);
    my.fixtureDef.shape = my.circleShape;
 
    that.getRadius = function ( ) {
@@ -223,19 +231,40 @@ function Phynix() {
       debugDraw.SetLineThickness(1.0);
       debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
       world.SetDebugDraw(debugDraw);
-      
+
+      document.addEventListener("mousemove", mouseMove, true);
+      document.addEventListener("contextmenu", mouseRight, false);
+
       document.addEventListener("mousedown", function(e) {
+         mouseDown(e);
          mouse.down = true;
          mouseMove(e);
-         document.addEventListener("mousemove", mouseMove, true);
+         // document.addEventListener("mousemove", mouseMove, true);
       }, true);
       
       document.addEventListener("mouseup", function() {
-         document.removeEventListener("mousemove", mouseMove, true);
+         // document.removeEventListener("mousemove", mouseMove, true);
          mouse.down = false;
-         mouse.x = undefined;
-         mouse.y = undefined;
+         // mouse.x = undefined;
+         // mouse.y = undefined;
       }, true);
+   };
+
+   var mouseRight = function(event) {
+      event.preventDefault();
+      var b = getBodyAtMouse(); 
+      if (b) {
+         if (b.userData) {
+            rm(b.userData);
+         } else {
+            removeBody(b);
+         }
+      }
+      return false;
+   };
+
+   var mouseDown = function(event) {
+      console.log(getBodyAtMouse());
    };
 
    var mouseMove = function(event) {
@@ -324,6 +353,14 @@ function Phynix() {
       return -1;
    };
 
+   var wrongArgLength = function(args, n) {
+      if (args.length != n) {
+         return "ERROR: expected "+n+" arguments, got " + cmd.args.length;
+      } else {
+         return null;
+      }
+   };
+
    var runCommand = function(command) {
       var commands = {
          "mkbox": function(input) {
@@ -333,8 +370,8 @@ function Phynix() {
 
             if (err != -1) {
                return "ERROR: invalid argument: " + cmd.args[err];
-            } else if (cmd.args.length != 4) {
-               return "ERROR: expected 4 arguments, got " + cmd.args.length;
+            } else if (wrongArgLength(cmd.args, 4)) {
+               return wrongArgLength(cmd.args, 4);
             }
 
             if (cmd.opts['rot']) {
@@ -346,9 +383,18 @@ function Phynix() {
             var y = cmd.args[3];
 
             var b = box({id: cmd.opts['id'], width: w, height: h});
-            createBlock(b, x, y, rotation);
+            return createBlock(b, x, y, rotation);
 
-            return "Box created at (" + x + ", " + y + ")"
+            return 
+         },
+         "rm": function(input) {            
+            var cmd = parseCommand(input);
+
+            if (wrongArgLength(cmd.args, 1)) {
+               return wrongArgLength(cmd.args, 1);
+            }
+
+            return rm(cmd.args[0]);
          }
       };
 
@@ -393,8 +439,17 @@ function Phynix() {
    var createBlock = function(b, x, y, rotation) {
       b.getBodyDef().position.Set(x / ppm, y / ppm);
 
+      if (b.getID()) {
+         if (blocks[b.getID()]) {
+            return "ERROR: there's already a block '" + b.getID() + "'"
+         } else {
+            blocks[b.getID()] = b;
+         }
+      }
+
       b.setBody(world.CreateBody(b.getBodyDef()));
       b.getBody().CreateFixture(b.getFixtureDef());
+      b.setUserData(b.getID());
 
       if (rotation)
       {
@@ -402,7 +457,21 @@ function Phynix() {
          b.getBody().SetTransform(t);
       }
 
-      blocks[b.getID()] = b;
+      return "Box created at (" + x + ", " + y + ")"
+   };
+
+   var removeBody = function(body) {
+      world.DestroyBody(body);
+   };
+
+   var rm = function(id) {
+      if (blocks[id]) {
+         removeBody(blocks[id].getBody());
+         blocks[id] = undefined;
+         return "Block '" + id + "' removed"
+      } else {
+         return "ERROR: unknown block '" + id + "'"
+      }
    };
 
    var mkbox = function(x, y, w, h, rotation, identifier) {
@@ -431,198 +500,3 @@ function Phynix() {
       paused = !paused;
    };
 }
-
-// function inputKeyPressed(e) {
-//    var commandInput = document.getElementById("commandInput");
-//    var command = commandInput.value;
-
-//    if (e.keyCode == 13) { // Enter
-//       if (command != '') {
-//          command_history.splice(1, 0, command);
-//          command_index = 0;
-//          commandInput.value = '';
-//          console.log('> ' + command);
-
-//          eval(command);
-//       }
-
-//       console.log(command_history);
-//    }
-
-//    if (e.keyCode == 38) { // Up arrow
-//       if (command_index + 1 < command_history.length) {
-//          command_index++;
-//       }
-//    }
-
-//    if (e.keyCode == 40) { // Down arrow
-//         if (command_index - 1 >= 0) {
-//          command_index--;
-//       }
-//    }
-
-//    if (e.keyCode == 38 || e.keyCode == 40) {
-//       commandInput.value = command_history[command_index];
-//    }
-// }
-
-// // Draw scale
-// var PIXELS_TO_METER = 30.0;
-
-// var world = new b2World(
-//       new b2Vec2(0, 10)    //gravity
-//    ,  true                 //allow sleep
-// );
-
-// var blocks = {};
-// var command_history = [''];
-// var command_index = 0;
-// var paused = false;
-
-
-///////////////////////////////////////
-// Box2D
-
-// function init() {
-//    canvas = document.getElementById( 'canvas' );
-//    context = canvas.getContext( '2d' );
-//    canvas.width = window.innerWidth;
-//    canvas.height = window.innerHeight - 60;
-
-//    window.onresize = function(event) {
-//       canvas.width = window.innerWidth;
-//       canvas.height = window.innerHeight;
-//       canvas.width = canvas.width;
-//     }
-   
-//    var fixDef = new b2FixtureDef;
-//    fixDef.density = 1.0;
-//    fixDef.friction = 0.5;
-//    fixDef.restitution = 0.2;
-   
-//    var bodyDef = new b2BodyDef;
-   
-//    //create ground
-//    bodyDef.type = b2Body.b2_staticBody;
-//    fixDef.shape = new b2PolygonShape; 
-//    fixDef.shape.SetAsBox(canvas.width / (4*PIXELS_TO_METER), 20 / PIXELS_TO_METER);
-//    bodyDef.position.Set(canvas.width / (2*PIXELS_TO_METER), canvas.height / ((4/3)*PIXELS_TO_METER));
-//    world.CreateBody(bodyDef).CreateFixture(fixDef);
-
-//    fixDef.shape.SetAsBox(4*canvas.width / (PIXELS_TO_METER), 20 / PIXELS_TO_METER);
-//    bodyDef.position.Set(canvas.width / (2*PIXELS_TO_METER), canvas.height / (PIXELS_TO_METER));
-//    world.CreateBody(bodyDef).CreateFixture(fixDef);
-   
-//    //setup debug draw
-//    var debugDraw = new b2DebugDraw();
-//    debugDraw.SetSprite(context);
-//    debugDraw.SetDrawScale(PIXELS_TO_METER);
-//    debugDraw.SetFillAlpha(0.5);
-//    debugDraw.SetLineThickness(1.0);
-//    debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
-//    world.SetDebugDraw(debugDraw);
-   
-//    window.setInterval(update, 1000 / 60);
-   
-//    //mouse
-   
-//    var mouseX, mouseY, mousePVec, isMouseDown, selectedBody, mouseJoint;
-//    var canvasPosition = getElementPosition(document.getElementById("canvas"));
-   
-//    document.addEventListener("mousedown", function(e) {
-//       isMouseDown = true;
-//       handleMouseMove(e);
-//       document.addEventListener("mousemove", handleMouseMove, true);
-//    }, true);
-   
-//    document.addEventListener("mouseup", function() {
-//       document.removeEventListener("mousemove", handleMouseMove, true);
-//       isMouseDown = false;
-//       mouseX = undefined;
-//       mouseY = undefined;
-//    }, true);
-   
-//    function handleMouseMove(e) {
-//       mouseX = (e.clientX - canvasPosition.x) / PIXELS_TO_METER;
-//       mouseY = (e.clientY - canvasPosition.y) / PIXELS_TO_METER;
-//    }
-   
-//    function getBodyAtMouse() {
-//       mousePVec = new b2Vec2(mouseX, mouseY);
-//       var aabb = new b2AABB();
-//       aabb.lowerBound.Set(mouseX - 0.001, mouseY - 0.001);
-//       aabb.upperBound.Set(mouseX + 0.001, mouseY + 0.001);
-      
-//       // Query the world for overlapping shapes.
-
-//       selectedBody = null;
-//       world.QueryAABB(getBodyCB, aabb);
-//       return selectedBody;
-//    }
-
-//    function getBodyCB(fixture) {
-//       if(fixture.GetBody().GetType() != b2Body.b2_staticBody) {
-//          if(fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(), mousePVec)) {
-//             selectedBody = fixture.GetBody();
-//             return false;
-//          }
-//       }
-//       return true;
-//    }
-   
-//    //update
-   
-//    function update() {
-//    		if (!paused) {
-// 	      if(isMouseDown && (!mouseJoint)) {
-// 	         var body = getBodyAtMouse();
-// 	         if(body) {
-// 	            var md = new b2MouseJointDef();
-// 	            md.bodyA = world.GetGroundBody();
-// 	            md.bodyB = body;
-// 	            md.target.Set(mouseX, mouseY);
-// 	            md.collideConnected = true;
-// 	            md.maxForce = 300.0 * body.GetMass();
-// 	            mouseJoint = world.CreateJoint(md);
-// 	            body.SetAwake(true);
-// 	         }
-// 	      }
-	      
-// 	      if(mouseJoint) {
-// 	         if(isMouseDown) {
-// 	            mouseJoint.SetTarget(new b2Vec2(mouseX, mouseY));
-// 	         } else {
-// 	            world.DestroyJoint(mouseJoint);
-// 	            mouseJoint = null;
-// 	         }
-// 	      }
-	   
-// 	      world.Step(1 / 60, 10, 10);
-// 	      world.ClearForces();
-//   		}
-//   		world.DrawDebugData();
-//    }
-   
-//    //helpers
-   
-//    //http://js-tut.aardon.de/js-tut/tutorial/position.html
-//    function getElementPosition(element) {
-//       var elem=element, tagname="", x=0, y=0;
-     
-//       while((typeof(elem) == "object") && (typeof(elem.tagName) != "undefined")) {
-//          y += elem.offsetTop;
-//          x += elem.offsetLeft;
-//          tagname = elem.tagName.toUpperCase();
-
-//          if(tagname == "BODY")
-//             elem=0;
-
-//          if(typeof(elem) == "object") {
-//             if(typeof(elem.offsetParent) == "object")
-//                elem = elem.offsetParent;
-//          }
-//       }
-
-//       return {x: x, y: y};
-//    }
-// }

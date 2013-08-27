@@ -39,7 +39,7 @@ input[type="text"] {
   height: 60px;
   width: 100%;
   padding: 10px ;
-  font-family: "Ubuntu Mono";
+  font-family: Monaco, Menlo, Consolas, "Ubuntu Mono", "Courier New", monospace;
   font-size: 16px;
   color: #222;
   background-color: #f6f6f6;
