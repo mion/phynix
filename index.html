@@ -6,35 +6,20 @@
 		  WebFont.load({
 		    google: {
 		      families: ['Open Sans', 
-		      			 'Noto Sans', 
-		      			 'Londrina Solid', 
-		      			 'Kite One', 
-		      			 'Roboto Condensed',
-		      			 'Armata',
-		      			 'Pompiere',
-		      			 'Julius Sans One',
-		      			 'Ubuntu Mono',
-		      			 'Source Sans Pro']
+		      			 'Ubuntu Mono']
 		    }
 		  });
 		</script>
 		<link href="css/phynix.css" rel="stylesheet">
-		<!-- <link href="css/bootstrap.min.css" rel="stylesheet"> -->
 		<script type="text/javascript" src="js/Box2dWeb-2.1.a.3.min.js"></script>
 		<script type="text/javascript" src="js/phynix.js"></script>
 	</head>
-	<body onload="init();">
-		<div id="pattern-overlay"></div>
-		<center>
-			<h1 data-title="Phynix"> <a href="#"> Phynix </a> </h1>
-			<div class="info">Create physics simulations with Unix-like commands.</div>
-			<canvas id="canvas" width="600" height="400"></canvas>
-			<br>
-			<input id="commandInput" type="text" onkeydown="inputKeyPressed(event)" placeholder="> Create something...">
-			<br><br>
-<!-- 			<div class="navigation">
-				Documentation
-			</div>
- -->		</center>
+	<body>
+		<canvas id="canvas"></canvas>
+		<input id="commandInput" type="text" placeholder="> Create something...">
+		<script>
+			var phynix = new Phynix();
+			phynix.initialize();
+		</script>
 	</body>
 </html>
