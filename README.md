@@ -1,7 +1,7 @@
 # Phynix
 
 Phynix is a physics sandbox driven by Unix-like commands.
-[Click here](http://mion.github.io/phynix/) to play with it in your browser.
+You can [play with it in your browser](http://mion.github.io/phynix/).
 
 Phynix is built on [box2dweb](http://code.google.com/p/box2dweb/) (a port of Box2DFlash to JavaScript). The original [Box2D](http://box2d.org/) physics engine was developed by Erin Catto.
 
