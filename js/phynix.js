@@ -288,6 +288,9 @@ function Phynix() {
       if (body) {
          notifyInfo(getBodyInfo(body));
       }
+      // if (event.keyCode) {
+      //    commandInput.value += mouseCoord.innerText;
+      // }
    };
 
    var icon = function(name) {
@@ -297,7 +300,7 @@ function Phynix() {
    var notifyCreated = function(text) { notify('magic', text); };
    var notifyRemoved = function(text) { notify('trash', text); };
    var notifyInfo = function(text) { notify('lightbulb', text); };
-   var notifyError = function(text) { notify('exclamation', text); };
+   var notifyError = function(text) { notify('remove', text); };
 
    var notify = function(name, text) {
       var notf = document.createElement("li");
