@@ -21,6 +21,62 @@ body {
   font-family: "Open Sans";
 }
 
+h1 {
+  font-size: 16px;
+}
+
+h2 {
+  font-size: 14px;
+}
+
+p {
+  font-size: 12px;
+}
+
+small {
+  font-size: 10px;
+}
+
+#help {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: Monaco, Menlo, Consolas, "Ubuntu Mono", "Courier New", monospace;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 14px;
+  margin-left: 550px;
+  margin-top: 20px;
+}
+
+#mouse-coord {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: Monaco, Menlo, Consolas, "Ubuntu Mono", "Courier New", monospace;
+  margin-left: 20px;
+  margin-top: 20px;
+  padding-left: 7px;
+}
+
+#bubbles {
+  position: absolute;
+  list-style-type: none;
+  margin-top: 50px;
+  margin-left: -20px;
+}
+
+.bubble {
+  color: rgba(255, 255, 255, 0.6);
+  font-family: Monaco, Menlo, Consolas, "Ubuntu Mono", "Courier New", monospace;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 7px;
+  margin-bottom: 5px;
+}
+
+#canvas {
+  z-index: -1;
+}
+
 #commandInput {
    position:fixed;
    left:0px;

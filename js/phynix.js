@@ -6,18 +6,28 @@
  *  - By Gabriel Vieira (https://github.com/mion)
  */
 
-// Inheritance (by Douglas Crockford)
-Function.prototype.method = function (name, func) {
-   this.prototype[name] = func;
-   return this;
+// IE shim (https://developer.mozilla.org/en-US/docs/DOM/window.setInterval)
+if (document.all && !window.setTimeout.isPolyfill) {
+  var __nativeST__ = window.setTimeout;
+  window.setTimeout = function (vCallback, nDelay /*, argumentToPass1, argumentToPass2, etc. */) {
+    var aArgs = Array.prototype.slice.call(arguments, 2);
+    return __nativeST__(vCallback instanceof Function ? function () {
+      vCallback.apply(null, aArgs);
+    } : vCallback, nDelay);
+  };
+  window.setTimeout.isPolyfill = true;
 }
 
-Object.method('superior', function (name) {
-   var that = this, method = that[name];
-   return function ( ) {
-      return method.apply(that, arguments);
-   }
-});
+if (document.all && !window.setInterval.isPolyfill) {
+  var __nativeSI__ = window.setInterval;
+  window.setInterval = function (vCallback, nDelay /*, argumentToPass1, argumentToPass2, etc. */) {
+    var aArgs = Array.prototype.slice.call(arguments, 2);
+    return __nativeSI__(vCallback instanceof Function ? function () {
+      vCallback.apply(null, aArgs);
+    } : vCallback, nDelay);
+  };
+  window.setInterval.isPolyfill = true;
+}
 
 // Box2D imports
 var   b2Vec2 = Box2D.Common.Math.b2Vec2
@@ -59,7 +69,7 @@ var getElementPosition = function(element) {
 };
 
 // Box2D wrapper classes
-var block = function (spec, my) {
+var Block = function (spec, my) {
    var that = {};
    my = my || {};
 
@@ -120,11 +130,11 @@ var block = function (spec, my) {
    return that;
 };
 
-var box = function(spec, my) {
+var Box = function(spec, my) {
    var that;
    my = my || {};
 
-   that = block(spec, my);
+   that = Block(spec, my);
 
    my.polygonShape = new b2PolygonShape;
    my.polygonShape.SetAsBox(spec.width / 2 / ppm, spec.height / 2 / ppm);
@@ -141,11 +151,11 @@ var box = function(spec, my) {
    return that;
 };
 
-var circle = function (spec, my) {
+var Circle = function (spec, my) {
    var that;
    my = my || {};
 
-   that = block(spec, my);
+   that = Block(spec, my);
 
    my.circleShape = new b2CircleShape(spec.radius / ppm);
    my.fixtureDef.shape = my.circleShape;
@@ -163,6 +173,10 @@ function Phynix() {
 
    // Application variables
    blocks = {};
+   bubbles = document.getElementById('bubbles');
+   notifications = [];
+   help = document.getElementById('help');
+   mouseCoord = document.getElementById('mouse-coord');
    commandInput = document.getElementById('commandInput');
    commandHistory = [''];
    commandIndex = 0;
@@ -232,27 +246,31 @@ function Phynix() {
       debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
       world.SetDebugDraw(debugDraw);
 
-      document.addEventListener("mousemove", mouseMove, true);
       document.addEventListener("contextmenu", mouseRight, false);
+      document.addEventListener("mousemove", function(event) {
+         mouseCoord.innerHTML = icon('globe') + ' ' + (event.clientX - canvasPosition.x).toString() + " , " + (event.clientY - canvasPosition.y).toString();
+      });
 
       document.addEventListener("mousedown", function(e) {
          mouseDown(e);
          mouse.down = true;
-         mouseMove(e);
-         // document.addEventListener("mousemove", mouseMove, true);
+         // mouseMove(e);
+         document.addEventListener("mousemove", mouseMove, true);
       }, true);
       
       document.addEventListener("mouseup", function() {
-         // document.removeEventListener("mousemove", mouseMove, true);
+         document.removeEventListener("mousemove", mouseMove, true);
          mouse.down = false;
-         // mouse.x = undefined;
-         // mouse.y = undefined;
+         mouse.x = undefined;
+         mouse.y = undefined;
       }, true);
    };
 
    var mouseRight = function(event) {
       event.preventDefault();
-      var b = getBodyAtMouse(); 
+      x = (event.clientX - canvasPosition.x) / ppm;
+      y = (event.clientY - canvasPosition.y) / ppm;
+      var b = getBodyAtMouse(x, y);
       if (b) {
          if (b.userData) {
             rm(b.userData);
@@ -264,7 +282,47 @@ function Phynix() {
    };
 
    var mouseDown = function(event) {
-      console.log(getBodyAtMouse());
+      x = (event.clientX - canvasPosition.x) / ppm;
+      y = (event.clientY - canvasPosition.y) / ppm;
+      var body = getBodyAtMouse(x, y);
+      if (body) {
+         notifyInfo(getBodyInfo(body));
+      }
+   };
+
+   var icon = function(name) {
+      return '<i class="icon-'+name+'"></i>'
+   };
+
+   var notifyCreated = function(text) { notify('magic', text); };
+   var notifyRemoved = function(text) { notify('trash', text); };
+   var notifyInfo = function(text) { notify('lightbulb', text); };
+   var notifyError = function(text) { notify('exclamation', text); };
+
+   var notify = function(name, text) {
+      var notf = document.createElement("li");
+      notf.classList.add('bubble');//, 'animated', 'fadeInLeft');
+      notf.innerHTML = icon(name) + ' ' + text;
+
+      bubbles.insertAdjacentElement('beforeend', notf);
+      notifications.unshift(notf);
+
+      window.setTimeout(removeNotification, 2500);
+   };
+
+   var removeNotification = function() {
+      notf = notifications.pop().remove();
+      // notf.classList.add('fadeOutLeft');
+      // window.setTimeout(notf.remove, 1000);
+   };
+
+   var getBodyInfo = function(body) {
+      var s = body.userData ? "Object '" + body.userData + "' " : "Unidentified object ";
+      var x = body.GetPosition().x.toFixed(2);
+      var y = body.GetPosition().y.toFixed(2);
+      var mass = body.GetMass().toFixed(2);
+      var r = body.GetAngle().toFixed(2);
+      return s + "at ("+x+", "+y+") / rotation: " + r + " rad / mass: " + mass + " kg";
    };
 
    var mouseMove = function(event) {
@@ -272,11 +330,13 @@ function Phynix() {
       mouse.y = (event.clientY - canvasPosition.y) / ppm;
    };
 
-   var getBodyAtMouse = function() {
-      mouse.PVec = new b2Vec2(mouse.x, mouse.y);
+   var getBodyAtMouse = function(x, y) {
+      mouseX = mouse.x || x;
+      mouseY = mouse.y || y;
+      mouse.PVec = new b2Vec2(mouseX, mouseY);
       var aabb = new b2AABB();
-      aabb.lowerBound.Set(mouse.x - 0.001, mouse.y - 0.001);
-      aabb.upperBound.Set(mouse.x + 0.001, mouse.y + 0.001);
+      aabb.lowerBound.Set(mouseX - 0.001, mouseY - 0.001);
+      aabb.upperBound.Set(mouseX + 0.001, mouseY + 0.001);
       // Query the world for overlapping shapes.
       selectedBody = null;
       world.QueryAABB(getBodyCB, aabb);
@@ -355,7 +415,7 @@ function Phynix() {
 
    var wrongArgLength = function(args, n) {
       if (args.length != n) {
-         return "ERROR: expected "+n+" arguments, got " + cmd.args.length;
+         return "ERROR: expected "+n+" arguments, got " + args.length;
       } else {
          return null;
       }
@@ -369,9 +429,11 @@ function Phynix() {
             var err = parseArgs(cmd.args);
 
             if (err != -1) {
-               return "ERROR: invalid argument: " + cmd.args[err];
+               notifyError("ERROR: invalid argument: " + cmd.args[err]);
+               return
             } else if (wrongArgLength(cmd.args, 4)) {
-               return wrongArgLength(cmd.args, 4);
+               notifyError(wrongArgLength(cmd.args, 4));
+               return
             }
 
             if (cmd.opts['rot']) {
@@ -382,19 +444,66 @@ function Phynix() {
             var x = cmd.args[2];
             var y = cmd.args[3];
 
-            var b = box({id: cmd.opts['id'], width: w, height: h});
-            return createBlock(b, x, y, rotation);
+            var b = Box({id: cmd.opts['id'], width: w, height: h});
+            createBlock(b, x, y, rotation);
+         },
+         "mkcir": function(input) {
+            var cmd = parseCommand(input);
+            var err = parseArgs(cmd.args);
 
-            return 
+            if (err != -1) {
+               notifyError("ERROR: invalid argument: " + cmd.args[err]);
+               return
+            } else if (wrongArgLength(cmd.args, 3)) {
+               notifyError(wrongArgLength(cmd.args, 3));
+               return
+            }
+
+            var r = cmd.args[0];
+            var x = cmd.args[1];
+            var y = cmd.args[2];
+
+            var c = Circle({id: cmd.opts['id'], radius: r});
+            createBlock(c, x, y);
          },
          "rm": function(input) {            
             var cmd = parseCommand(input);
 
             if (wrongArgLength(cmd.args, 1)) {
-               return wrongArgLength(cmd.args, 1);
+               notifyError(wrongArgLength(cmd.args, 1));
+               return
             }
 
-            return rm(cmd.args[0]);
+            rm(cmd.args[0]);
+         },
+         "mkjnt": function(input) {
+            var cmd = parseCommand(input);
+
+            if (wrongArgLength(cmd.args, 2)) {
+               notifyError(wrongArgLength(cmd.args, 2));
+               return
+            }
+
+            var block1 = blocks[cmd.args[0]],
+                block2 = blocks[cmd.args[1]];
+
+            if (!block1) { notifyError("ERROR: no object with ID = '" + cmd.args[0] + "'"); return; }
+            if (!block2) { notifyError("ERROR: no object with ID = '" + cmd.args[1] + "'"); return; }
+         
+
+            var distanceJointDef = new b2DistanceJointDef;
+            distanceJointDef.Initialize(block1.getBody(), block2.getBody(), block1.getBody().GetWorldCenter(), block2.getBody().GetWorldCenter());
+
+            world.CreateJoint(distanceJointDef);
+
+            notifyCreated("Joint created between '" + cmd.args[0] +"' and '" + cmd.args[1] + "'");
+         },
+         "frz": function(input) {
+            paused = !paused;
+            notifyInfo(paused ? "Paused" : "Unpaused");
+         },
+         "help": function(input) {
+            help.hidden = !help.hidden;
          }
       };
 
@@ -404,20 +513,15 @@ function Phynix() {
          commandInput.value = '';
          cmd = command.split(' ')[0];
 
-         console.log('Input: ' + command);
-         console.log('Command: ' + cmd); 
-
          if (commands[cmd] != undefined) {
-            console.log(commands[cmd](command));
+            commands[cmd](command);
          } else {
-            console.log('Oops!');
+            notifyError("ERROR: unknown command '"+cmd+"'");
          }
-         // eval('__command_' + command);
       }
    };
 
    var inputKeyDown = function(event) {
-      console.log('keydown');
       if (event.keyCode == 13) { // enter
          runCommand(commandInput.value);
       }
@@ -441,7 +545,8 @@ function Phynix() {
 
       if (b.getID()) {
          if (blocks[b.getID()]) {
-            return "ERROR: there's already a block '" + b.getID() + "'"
+            notifyError("ERROR: there's already an object with ID = '" + b.getID() + "'")
+            return
          } else {
             blocks[b.getID()] = b;
          }
@@ -457,31 +562,35 @@ function Phynix() {
          b.getBody().SetTransform(t);
       }
 
-      return "Box created at (" + x + ", " + y + ")"
+      notifyCreated("Object "+(b.getID() ? b.getID() : "")+" created at (" + x + ", " + y + ")");
    };
 
    var removeBody = function(body) {
       world.DestroyBody(body);
+      if (body.userData) {
+         notifyRemoved("Object '" + body.userData + "' removed")
+      } else {         
+         notifyRemoved("Object removed")
+      }
    };
 
    var rm = function(id) {
       if (blocks[id]) {
          removeBody(blocks[id].getBody());
          blocks[id] = undefined;
-         return "Block '" + id + "' removed"
       } else {
-         return "ERROR: unknown block '" + id + "'"
+         notifyError("ERROR: no object with ID = '" + id + "'")
       }
    };
 
    var mkbox = function(x, y, w, h, rotation, identifier) {
-      var b = box({id: identifier, width: w, height: h});
+      var b = Box({id: identifier, width: w, height: h});
 
       createBlock(b, x, y, rotation);
    };
 
    var mkcir = function(x, y, r, identifier) {
-      var c = circle({id: identifier, radius: r});
+      var c = Circle({id: identifier, radius: r});
 
       createBlock(c, x, y);
    };

@@ -2,10 +2,47 @@
 	<head>
 		<title>Phynix</title>
 		<link href="css/phynix.css" rel="stylesheet">
+		<link href="css/animate-custom.css" rel="stylesheet">
+		<link href="css/font-awesome.css" rel="stylesheet">
 		<script type="text/javascript" src="js/Box2dWeb-2.1.a.3.min.js"></script>
 		<script type="text/javascript" src="js/phynix.js"></script>
 	</head>
 	<body>
+		<div id="mouse-coord">123 , 345</div>
+		<div id="help">
+			<h1><i class="icon-info-sign"></i> Instructions</h1>
+			<p>Type 'help' at any time to toggle this panel.</p><hr>
+			<h2><i class="icon-arrow-right"></i> Commands:</h2>
+			<ul>
+				<li>
+					<p><u>Make box</u> - <b>mkbox</b> <i>width height x y [rot/id]</i></p>
+					<p><small>(eg.: mkbox 50 50 300 400 --rot=30 --id=box1)</small></p>
+				</li>
+				<li>
+					<p><u>Make circle</u> - <b>mkcir</b> <i>radius x y [id]</i></p>
+					<p><small>(eg.: mkcir 60 250 250 --id=cir1)</small></p>
+				</li>
+				<li>
+					<p><u>Make joint</u> - <b>mkjnt</b> <i>id1 id2</i></p>
+					<p><small>(eg.: mkjnt box1 cir1)</small></p>
+				</li>
+				<li>
+					<p><u>Remove</u> - <b>rm</b> <i>id</i></p>
+					<p><small>(eg.: rm box2)</small></p>
+				</li>
+				<li>
+					<p><u>Freeze</u> - <b>frz</b></p>
+					<p><small>Toggles the physics engine</small></p>
+				</li>
+				<li>
+					<p><u>Left click</u> to drag <i>/</i> display object's details</p>
+				</li>
+				<li>
+					<p><u>Right click</u> to remove an object (even w/o ID)</p>
+				</li>
+			</ul>
+		</div>
+		<ul id="bubbles"></ul>
 		<canvas id="canvas"></canvas>
 		<input id="commandInput" type="text" placeholder="> Create something...">
 		<script>
